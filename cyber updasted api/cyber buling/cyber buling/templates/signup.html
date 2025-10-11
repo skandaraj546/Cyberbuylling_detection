@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign Up - CyberGuard</title>
+    <link rel="stylesheet" href="/static/style.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="login-container">
+        <!-- Left Branding Panel -->
+        <div class="branding-panel">
+            <div class="branding-content">
+                <div class="brand-logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <h1>CyberGuard</h1>
+                </div>
+                <p class="brand-tagline">
+                    Join our community and help create a safer online environment
+                </p>
+                <ul class="brand-features">
+                    <li>
+                        <i class="fas fa-user-plus"></i>
+                        <span>Create your secure account</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Advanced AI-powered protection</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-users"></i>
+                        <span>Connect with like-minded users</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-lock"></i>
+                        <span>Your data is always protected</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Right Form Panel -->
+        <div class="form-panel">
+            <div class="form-container">
+                <div class="form-header">
+                    <h2>Create Account</h2>
+                    <p>Sign up for your CyberGuard account</p>
+                </div>
+
+                <form class="login-form" id="signupForm">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="username" name="username" class="form-input"
+                                placeholder="Choose a username" required minlength="3" maxlength="20">
+                        </div>
+                        <div class="field-validation" id="usernameValidation"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="email" name="email" class="form-input"
+                                placeholder="Enter your email address" required>
+                        </div>
+                        <div class="field-validation" id="emailValidation"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="password" name="password" class="form-input"
+                                placeholder="Create a strong password" required minlength="8">
+                            <button type="button" class="password-toggle" id="passwordToggle">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="password-strength" id="passwordStrength">
+                            <div class="strength-bar">
+                                <div class="strength-fill" id="strengthFill"></div>
+                            </div>
+                            <span class="strength-text" id="strengthText">Password strength</span>
+                        </div>
+                        <div class="field-validation" id="passwordValidation"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="confirmPassword" name="confirmPassword" class="form-input"
+                                placeholder="Confirm your password" required>
+                            <button type="button" class="password-toggle" id="confirmPasswordToggle">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="field-validation" id="confirmPasswordValidation"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="checkbox-wrapper">
+                            <input type="checkbox" id="termsAgreement" name="termsAgreement" required>
+                            <span class="checkmark"></span>
+                            <span class="checkbox-text">
+                                I agree to the <a href="#" class="terms-link">Terms of Service</a> and <a href="#"
+                                    class="terms-link">Privacy Policy</a>
+                            </span>
+                        </label>
+                        <div class="field-validation" id="termsValidation"></div>
+                    </div>
+
+                    <button type="submit" class="login-btn" id="signupBtn">
+                        <i class="fas fa-user-plus"></i>
+                        Create Account
+                    </button>
+
+                    <div class="divider">
+                        <span>or</span>
+                    </div>
+
+                    <div class="signup-link">
+                        <p>Already have an account? <a href="/login" id="loginLink">Sign in to CyberGuard</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Password toggle functionality
+        const passwordToggle = document.getElementById('passwordToggle');
+        const passwordInput = document.getElementById('password');
+        const passwordIcon = passwordToggle.querySelector('i');
+
+        const confirmPasswordToggle = document.getElementById('confirmPasswordToggle');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const confirmPasswordIcon = confirmPasswordToggle.querySelector('i');
+
+        passwordToggle.addEventListener('click', function () {
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                passwordIcon.className = 'fas fa-eye-slash';
+            } else {
+                passwordInput.type = 'password';
+                passwordIcon.className = 'fas fa-eye';
+            }
+        });
+
+        confirmPasswordToggle.addEventListener('click', function () {
+            if (confirmPasswordInput.type === 'password') {
+                confirmPasswordInput.type = 'text';
+                confirmPasswordIcon.className = 'fas fa-eye-slash';
+            } else {
+                confirmPasswordInput.type = 'password';
+                confirmPasswordIcon.className = 'fas fa-eye';
+            }
+        });
+
+        // Password strength indicator
+        const passwordStrength = document.getElementById('passwordStrength');
+        const strengthFill = document.getElementById('strengthFill');
+        const strengthText = document.getElementById('strengthText');
+
+        function checkPasswordStrength(password) {
+            let strength = 0;
+            let feedback = [];
+
+            if (password.length >= 8) strength += 1;
+            else feedback.push('At least 8 characters');
+
+            if (/[a-z]/.test(password)) strength += 1;
+            else feedback.push('Lowercase letter');
+
+            if (/[A-Z]/.test(password)) strength += 1;
+            else feedback.push('Uppercase letter');
+
+            if (/[0-9]/.test(password)) strength += 1;
+            else feedback.push('Number');
+
+            if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+            else feedback.push('Special character');
+
+            return { strength, feedback };
+        }
+
+        passwordInput.addEventListener('input', function () {
+            const password = this.value;
+            const { strength, feedback } = checkPasswordStrength(password);
+
+            if (password.length === 0) {
+                passwordStrength.style.display = 'none';
+                return;
+            }
+
+            passwordStrength.style.display = 'block';
+
+            const strengthLevels = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'];
+            const strengthColors = ['#ff4757', '#ff6b6b', '#ffa502', '#2ed573', '#00d4ff'];
+
+            strengthFill.style.width = `${(strength / 5) * 100}%`;
+            strengthFill.style.backgroundColor = strengthColors[strength - 1] || '#ff4757';
+            strengthText.textContent = strengthLevels[strength - 1] || 'Very Weak';
+            strengthText.style.color = strengthColors[strength - 1] || '#ff4757';
+        });
+
+        // Form validation
+        function validateField(field, validationId, validator) {
+            const value = field.value.trim();
+            const validation = document.getElementById(validationId);
+
+            if (validator(value)) {
+                field.classList.remove('error');
+                field.classList.add('success');
+                validation.textContent = '';
+                validation.className = 'field-validation success';
+                return true;
+            } else {
+                field.classList.remove('success');
+                field.classList.add('error');
+                validation.textContent = getValidationMessage(field.name, value);
+                validation.className = 'field-validation error';
+                return false;
+            }
+        }
+
+        function getValidationMessage(fieldName, value) {
+            const messages = {
+                username: value.length < 3 ? 'Username must be at least 3 characters' :
+                    value.length > 20 ? 'Username must be less than 20 characters' :
+                        !/^[a-zA-Z0-9_]+$/.test(value) ? 'Username can only contain letters, numbers, and underscores' : '',
+                email: !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? 'Please enter a valid email address' : '',
+                password: value.length < 8 ? 'Password must be at least 8 characters' : '',
+                confirmPassword: value !== document.getElementById('password').value ? 'Passwords do not match' : '',
+                termsAgreement: 'You must agree to the terms and conditions'
+            };
+            return messages[fieldName] || '';
+        }
+
+        // Real-time validation
+        const usernameInput = document.getElementById('username');
+        const emailInput = document.getElementById('email');
+        const termsCheckbox = document.getElementById('termsAgreement');
+
+        usernameInput.addEventListener('blur', function () {
+            validateField(this, 'usernameValidation', (value) =>
+                value.length >= 3 && value.length <= 20 && /^[a-zA-Z0-9_]+$/.test(value)
+            );
+        });
+
+        emailInput.addEventListener('blur', function () {
+            validateField(this, 'emailValidation', (value) =>
+                /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+            );
+        });
+
+        passwordInput.addEventListener('blur', function () {
+            validateField(this, 'passwordValidation', (value) => value.length >= 8);
+        });
+
+        confirmPasswordInput.addEventListener('input', function () {
+            validateField(this, 'confirmPasswordValidation', (value) =>
+                value === passwordInput.value && value.length > 0
+            );
+        });
+
+        termsCheckbox.addEventListener('change', function () {
+            const validation = document.getElementById('termsValidation');
+            if (this.checked) {
+                validation.textContent = '';
+                validation.className = 'field-validation success';
+            } else {
+                validation.textContent = 'You must agree to the terms and conditions';
+                validation.className = 'field-validation error';
+            }
+        });
+
+        // Form submission
+        const signupForm = document.getElementById('signupForm');
+        const signupBtn = document.getElementById('signupBtn');
+
+        signupForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            // Validate all fields
+            const isUsernameValid = validateField(usernameInput, 'usernameValidation', (value) =>
+                value.length >= 3 && value.length <= 20 && /^[a-zA-Z0-9_]+$/.test(value)
+            );
+
+            const isEmailValid = validateField(emailInput, 'emailValidation', (value) =>
+                /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+            );
+
+            const isPasswordValid = validateField(passwordInput, 'passwordValidation', (value) =>
+                value.length >= 8
+            );
+
+            const isConfirmPasswordValid = validateField(confirmPasswordInput, 'confirmPasswordValidation', (value) =>
+                value === passwordInput.value && value.length > 0
+            );
+
+            const isTermsValid = termsCheckbox.checked;
+
+            if (!isTermsValid) {
+                const validation = document.getElementById('termsValidation');
+                validation.textContent = 'You must agree to the terms and conditions';
+                validation.className = 'field-validation error';
+            }
+
+            if (isUsernameValid && isEmailValid && isPasswordValid && isConfirmPasswordValid && isTermsValid) {
+                // Add loading state
+                signupBtn.classList.add('loading');
+                signupBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
+
+                try {
+                    // Get form data
+                    const formData = new FormData(signupForm);
+                    
+                    // Send signup request to Flask API
+                    const response = await fetch('/api/auth/signup', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            username: formData.get('username'),
+                            email: formData.get('email'),
+                            password: formData.get('password'),
+                            confirmPassword: formData.get('confirmPassword')
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.ok) {
+                        // Signup successful
+                        signupBtn.classList.remove('loading');
+                        signupBtn.innerHTML = '<i class="fas fa-check"></i> Account Created!';
+                        signupBtn.classList.add('success');
+
+                        // Show success message and redirect to LOGIN page
+                        setTimeout(() => {
+                            alert(result.message || 'Account created successfully! Please login to continue.');
+                            window.location.href = result.redirect || '/login';
+                        }, 1000);
+                    } else {
+                        // Signup failed
+                        throw new Error(result.error || 'Registration failed');
+                    }
+
+                } catch (error) {
+                    // Remove loading state
+                    signupBtn.classList.remove('loading');
+                    signupBtn.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
+
+                    // Show error message
+                    alert(error.message || 'Registration failed. Please try again.');
+                }
+            }
+        });
+
+        // Login link
+        document.getElementById('loginLink').addEventListener('click', function (e) {
+            e.preventDefault();
+            window.location.href = '/login';
+        });
+
+        // Terms links
+        document.querySelectorAll('.terms-link').forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                alert('Terms of Service and Privacy Policy would be displayed here.');
+            });
+        });
+
+        // Add some interactive effects
+        const inputs = document.querySelectorAll('.form-input');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function () {
+                this.parentElement.style.transform = 'scale(1.02)';
+            });
+
+            input.addEventListener('blur', function () {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+
+</body>
+
+</html>

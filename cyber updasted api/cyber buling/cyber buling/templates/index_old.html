@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CyberGuard - Real-time Cyberbullying Detection</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+</head>
+
+<body>
+  <div class="app-container">
+    <!-- Left Sidebar -->
+    <aside class="left-sidebar">
+      <div class="logo-section">
+        <div class="logo">
+          <i class="fas fa-shield-alt"></i>
+          <span>CyberGuard</span>
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <a href="#" class="nav-item active">
+          <i class="fas fa-home"></i>
+          <span>Home</span>
+        </a>
+        <a href="#" class="nav-item">
+          <i class="fas fa-search"></i>
+          <span>Explore</span>
+        </a>
+        <a href="#" class="nav-item">
+          <i class="fas fa-bell"></i>
+          <span>Notifications</span>
+        </a>
+        <a href="#" class="nav-item">
+          <i class="fas fa-envelope"></i>
+          <span>Messages</span>
+        </a>
+        <a href="#" class="nav-item">
+          <i class="fas fa-user"></i>
+          <span>Profile</span>
+        </a>
+      </nav>
+
+      <button class="post-btn">
+        <i class="fas fa-plus"></i>
+        <span>Post</span>
+      </button>
+
+      <!-- User Info Section -->
+      <div class="user-info-section">
+        <div class="user-profile">
+          <div class="user-avatar-large">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="user-details">
+            <span class="user-name" id="userName">Loading...</span>
+            <span class="user-email" id="userEmail">Loading...</span>
+          </div>
+        </div>
+        <button class="logout-btn" onclick="logout()">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Header -->
+      <header class="main-header">
+        <h1>Home</h1>
+        <div class="header-actions">
+          <button class="refresh-btn" id="refreshBtn">
+            <i class="fas fa-sync-alt"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Post Composer -->
+      <div class="post-composer">
+        <div class="composer-header">
+          <div class="user-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="composer-inputs">
+            <input type="text" id="username" placeholder="Your username" class="username-input" />
+            <textarea id="messageInput" placeholder="What's happening?" class="message-textarea"></textarea>
+          </div>
+        </div>
+
+        <div class="composer-actions">
+          <div class="media-actions">
+            <label for="fileInput" class="media-btn">
+              <i class="fas fa-image"></i>
+              <span>Photo</span>
+            </label>
+            <input type="file" id="fileInput" accept="image/*" hidden />
+            <button class="media-btn twitter-post-btn" id="twitterPostBtn" onclick="toggleTwitterPost()"
+              style="display: none;">
+              <i class="fab fa-twitter"></i>
+              <span>Post to Twitter</span>
+            </button>
+            <button class="media-btn" id="testToxicityBtn" onclick="testToxicity()" style="background: #ff6b6b;">
+              <i class="fas fa-flask"></i>
+              <span>Test Toxicity</span>
+            </button>
+          </div>
+          <div class="post-options">
+            <label class="twitter-checkbox" id="twitterCheckbox" style="display: none;">
+              <input type="checkbox" id="postToTwitter" />
+              <span class="checkmark"></span>
+              <span class="checkbox-text">Also post to Twitter</span>
+            </label>
+            <button type="submit" id="postBtn" class="post-submit-btn" disabled>
+              Post
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Warnings -->
+      <div id="warnings" class="warnings"></div>
+
+      <!-- Feed -->
+      <div class="feed-container">
+        <ul id="messages" class="feed-list"></ul>
+      </div>
+    </main>
+
+    <!-- Right Sidebar -->
+    <aside class="right-sidebar">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Search CyberGuard" />
+      </div>
+
+      <div class="trending-section">
+        <h3>Trending</h3>
+        <div class="trending-item">
+          <span class="trending-tag">#CyberSafety</span>
+          <span class="trending-count">1.2K posts</span>
+        </div>
+        <div class="trending-item">
+          <span class="trending-tag">#OnlineSafety</span>
+          <span class="trending-count">856 posts</span>
+        </div>
+        <div class="trending-item">
+          <span class="trending-tag">#DigitalWellness</span>
+          <span class="trending-count">543 posts</span>
+        </div>
+      </div>
+
+      <div class="safety-info">
+        <h3>Safety Features</h3>
+        <div class="safety-item">
+          <i class="fas fa-shield-alt"></i>
+          <span>Real-time toxicity detection</span>
+        </div>
+        <div class="safety-item">
+          <i class="fas fa-eye-slash"></i>
+          <span>Automatic content blurring</span>
+        </div>
+        <div class="safety-item">
+          <i class="fas fa-flag"></i>
+          <span>Easy reporting system</span>
+        </div>
+      </div>
+
+      <!-- Twitter Integration -->
+      <div class="twitter-integration">
+        <h3>Twitter Integration</h3>
+        <div class="twitter-status" id="twitterStatus">
+          <div class="status-indicator" id="twitterIndicator">
+            <i class="fas fa-circle"></i>
+            <span id="twitterStatusText">Checking connection...</span>
+          </div>
+          <button class="twitter-connect-btn" id="twitterConnectBtn" onclick="connectTwitter()">
+            <i class="fab fa-twitter"></i>
+            <span>Connect Twitter</span>
+          </button>
+          <button class="twitter-disconnect-btn" id="twitterDisconnectBtn" onclick="disconnectTwitter()"
+            style="display: none;">
+            <i class="fas fa-unlink"></i>
+            <span>Disconnect</span>
+          </button>
+        </div>
+        <div class="twitter-info" id="twitterInfo" style="display: none;">
+          <p>Connected to Twitter! You can now post directly to your timeline.</p>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Message Template -->
+  <template id="messageTemplate">
+    <li class="feed-item">
+      <div class="post-header">
+        <div class="user-info">
+          <div class="user-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="user-details">
+            <span class="username"></span>
+            <span class="timestamp"></span>
+          </div>
+        </div>
+        <div class="post-actions">
+          <button class="action-btn report-btn" title="Report">
+            <i class="fas fa-flag"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="post-content">
+        <div class="text-content"></div>
+        <div class="image-content"></div>
+        <div class="toxicity-indicators"></div>
+      </div>
+
+      <div class="post-footer">
+        <button class="action-btn like-btn" title="Like">
+          <i class="far fa-heart"></i>
+          <span class="count">0</span>
+        </button>
+        <button class="action-btn comment-btn" title="Comment">
+          <i class="far fa-comment"></i>
+          <span class="count">0</span>
+        </button>
+        <button class="action-btn share-btn" title="Share">
+          <i class="fas fa-retweet"></i>
+        </button>
+      </div>
+    </li>
+  </template>
+
+  <script src="/static/app.js"></script>
+
+  <script>
+    // Load user information on page load
+    async function loadUserInfo() {
+      try {
+        const response = await fetch('/api/auth/me');
+        const result = await response.json();
+
+        if (result.ok) {
+          document.getElementById('userName').textContent = result.user.username;
+          document.getElementById('userEmail').textContent = result.user.email;
+        } else {
+          // If not authenticated, redirect to login
+          window.location.href = '/login';
+        }
+      } catch (error) {
+        console.error('Error loading user info:', error);
+        window.location.href = '/login';
+      }
+    }
+
+    // Logout function
+    async function logout() {
+      try {
+        await fetch('/api/auth/logout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        window.location.href = '/login';
+      } catch (error) {
+        console.error('Logout error:', error);
+        // Still redirect even if logout fails
+        window.location.href = '/login';
+      }
+    }
+
+    // Load user info when page loads
+    document.addEventListener('DOMContentLoaded', function () {
+      loadUserInfo();
+      checkTwitterStatus();
+    });
+
+    // Twitter Integration Functions
+    async function checkTwitterStatus() {
+      try {
+        const response = await fetch('/api/auth/me');
+        const result = await response.json();
+
+        if (result.ok) {
+          // Check if user has Twitter connected
+          const twitterResponse = await fetch('/api/twitter/status');
+          const twitterResult = await twitterResponse.json();
+
+          updateTwitterUI(twitterResult.connected);
+        }
+      } catch (error) {
+        console.error('Error checking Twitter status:', error);
+        updateTwitterUI(false);
+      }
+    }
+
+    function updateTwitterUI(connected) {
+      const indicator = document.getElementById('twitterIndicator');
+      const statusText = document.getElementById('twitterStatusText');
+      const connectBtn = document.getElementById('twitterConnectBtn');
+      const disconnectBtn = document.getElementById('twitterDisconnectBtn');
+      const twitterInfo = document.getElementById('twitterInfo');
+      const twitterPostBtn = document.getElementById('twitterPostBtn');
+      const twitterCheckbox = document.getElementById('twitterCheckbox');
+
+      if (connected) {
+        // Connected state
+        indicator.innerHTML = '<i class="fas fa-circle" style="color: #1da1f2;"></i>';
+        statusText.textContent = 'Connected to Twitter';
+        connectBtn.style.display = 'none';
+        disconnectBtn.style.display = 'block';
+        twitterInfo.style.display = 'block';
+        twitterPostBtn.style.display = 'block';
+        twitterCheckbox.style.display = 'block';
+      } else {
+        // Not connected state
+        indicator.innerHTML = '<i class="fas fa-circle" style="color: #666;"></i>';
+        statusText.textContent = 'Not connected to Twitter';
+        connectBtn.style.display = 'block';
+        disconnectBtn.style.display = 'none';
+        twitterInfo.style.display = 'none';
+        twitterPostBtn.style.display = 'none';
+        twitterCheckbox.style.display = 'none';
+      }
+    }
+
+    function connectTwitter() {
+      window.location.href = '/auth/twitter';
+    }
+
+    async function disconnectTwitter() {
+      if (confirm('Are you sure you want to disconnect from Twitter?')) {
+        try {
+          const response = await fetch('/api/twitter/disconnect', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          });
+
+          if (response.ok) {
+            updateTwitterUI(false);
+            alert('Successfully disconnected from Twitter');
+          } else {
+            alert('Failed to disconnect from Twitter');
+          }
+        } catch (error) {
+          console.error('Error disconnecting from Twitter:', error);
+          alert('Error disconnecting from Twitter');
+        }
+      }
+    }
+
+    function toggleTwitterPost() {
+      const checkbox = document.getElementById('postToTwitter');
+      checkbox.checked = !checkbox.checked;
+    }
+  </script>
+</body>
+
+</html>

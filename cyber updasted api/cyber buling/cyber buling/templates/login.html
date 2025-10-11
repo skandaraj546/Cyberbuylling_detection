@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - CyberGuard</title>
+    <link rel="stylesheet" href="/static/style.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="login-container">
+        <!-- Left Branding Panel -->
+        <div class="branding-panel">
+            <div class="branding-content">
+                <div class="brand-logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <h1>CyberGuard</h1>
+                </div>
+                <p class="brand-tagline">
+                    Real-time cyberbullying detection and prevention platform
+                </p>
+                <ul class="brand-features">
+                    <li>
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Advanced AI-powered content analysis</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-eye-slash"></i>
+                        <span>Automatic harmful content filtering</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-users"></i>
+                        <span>Safe community environment</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-flag"></i>
+                        <span>Easy reporting and moderation tools</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Right Form Panel -->
+        <div class="form-panel">
+            <div class="form-container">
+                <div class="form-header">
+                    <h2>Welcome back</h2>
+                    <p>Sign in to your CyberGuard account</p>
+                </div>
+
+                <form class="login-form" id="loginForm">
+                    <div class="form-group">
+                        <label for="username">Username or Email</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="username" name="username" class="form-input"
+                                placeholder="Enter your username or email" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="password" name="password" class="form-input"
+                                placeholder="Enter your password" required>
+                            <button type="button" class="password-toggle" id="passwordToggle">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="forgot-password">
+                            <a href="#" id="forgotPassword">Forgot password?</a>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="login-btn" id="loginBtn">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Sign In
+                    </button>
+
+                    <div class="divider">
+                        <span>or</span>
+                    </div>
+
+                    <div class="signup-link">
+                        <p>Don't have an account? <a href="#" id="signupLink">Sign up for CyberGuard</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Password toggle functionality
+        const passwordToggle = document.getElementById('passwordToggle');
+        const passwordInput = document.getElementById('password');
+        const passwordIcon = passwordToggle.querySelector('i');
+
+        passwordToggle.addEventListener('click', function () {
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                passwordIcon.className = 'fas fa-eye-slash';
+            } else {
+                passwordInput.type = 'password';
+                passwordIcon.className = 'fas fa-eye';
+            }
+        });
+
+        // Form submission
+        const loginForm = document.getElementById('loginForm');
+        const loginBtn = document.getElementById('loginBtn');
+
+        loginForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            // Add loading state
+            loginBtn.classList.add('loading');
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In...';
+
+            try {
+                // Get form data
+                const formData = new FormData(loginForm);
+                const username = formData.get('username');
+                const password = formData.get('password');
+
+                // Basic validation
+                if (!username || !password) {
+                    throw new Error('Please fill in all fields');
+                }
+
+                // Send login request to Flask API
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.ok) {
+                    // Login successful
+                    loginBtn.classList.remove('loading');
+                    loginBtn.innerHTML = '<i class="fas fa-check"></i> Success!';
+                    loginBtn.classList.add('success');
+
+                    // Redirect to main page after a short delay
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1000);
+                } else {
+                    // Login failed
+                    throw new Error(result.error || 'Login failed');
+                }
+
+            } catch (error) {
+                // Remove loading state
+                loginBtn.classList.remove('loading');
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+
+                // Show error message
+                alert(error.message || 'Login failed. Please try again.');
+            }
+        });
+
+        // Sign up link
+        document.getElementById('signupLink').addEventListener('click', function (e) {
+            e.preventDefault();
+            window.location.href = '/signup';
+        });
+
+        // Forgot password link
+        document.getElementById('forgotPassword').addEventListener('click', function (e) {
+            e.preventDefault();
+            // Here you would redirect to forgot password page
+            console.log('Redirect to forgot password page');
+            // window.location.href = '/forgot-password';
+        });
+
+        // Add some interactive effects
+        const inputs = document.querySelectorAll('.form-input');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function () {
+                this.parentElement.style.transform = 'scale(1.02)';
+            });
+
+            input.addEventListener('blur', function () {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body>
+
+</html>
